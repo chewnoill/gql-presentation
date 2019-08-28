@@ -1,0 +1,661 @@
+import { future, big } from '@mdx-deck/themes'
+import { Image } from 'mdx-deck'
+import { theme as t } from './theme'
+import { Note } from './components/Note'
+import { Code, CodeSurf } from './components/Code'
+import smushed from './assets/gql-smushed.svg'
+import {
+    Clock,
+    Horizontal,
+    Appear
+} from 'mdx-deck'
+
+export const themes = [t, future]
+
+# GQL
+
+#### gee &#8226; _quil_
+
+
+<Note>{`
+building with ApolloServer at CK
+why javascript?
+- graphql reference spec written in javascript
+`}</Note>
+
+---
+
+> presented with ```MDX Deck```
+
+---
+
+<Image src='https://camo.githubusercontent.com/9dcd48bd4f84def850f34ba703a760564cf20ca1/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6a786e626c6b2f6d64782d6465636b2d322e676966' />
+
+<Note>{`
+Build presentations with markdown
+and react components
+similar to spectacle
+- shoutout craigb
+`}</Note>
+
+---
+
+### what is GQL?
+
+---
+
+> Describe your data
+
+<Code language="graphql">{`
+type Project {
+  name: String
+  tagline: String
+  contributors: [User]
+}
+`}</Code>
+
+<Note>{`
+graphql defines its own
+"GraphQL Schema Language"
+- a little confusing because
+we reuse schema name for
+something else later
+`}</Note>
+
+---
+
+> Ask for what you want
+
+<Code language="graphql">{`
+{
+  project(name: "GQL") {
+    tagline
+  }
+}
+`}</Code>
+
+---
+
+> Get predictable results
+
+<Code language="json">{`
+{
+  "project": {
+    "tagline": "A query language for APIs"
+  }
+}
+`}</Code>
+
+---
+
+<a href="https://www.prisma.io/">
+    <img src="https://camo.githubusercontent.com/c7f49c483a3c5a145ff55c7331520a65e12abff2/68747470733a2f2f692e696d6775722e636f6d2f774434725674342e706e67" />
+</a>
+
+
+<Note>{`
+formally: graphcool
+controlling your database from your graphql server
+Nice
+ * simple
+ * DSL for managing your database
+ * sophisticated ORM
+Not Nice
+ * hard to manage migrations well
+ * isn't built for connecting multiple databases
+ * you don't want your frontend
+    to be tightly coupled to your
+    backend data
+ * you want to combine multiple
+    endpoints in your graphql
+    layer
+`}</Note>
+
+---
+
+### Other notable solutions
+
+* PostGraphile - https://www.graphile.org/
+* GraphCMS - https://graphcms.com
+* Hasura - https://hasura.io
+* TakeShape - https://www.takeshape.io
+
+---
+
+> Apollo Server
+
+<Code language="js">{`
+new ApolloServer({
+  typeDefs,
+  resolvers
+});
+`}</Code>
+
+<Note>{`
+two required pieces
+* typedefs: SDL schema definition
+* resolvers: type implementations
+`}</Note>
+
+---
+
+> typeDefs
+
+<Code language="graphql">{`
+new ApolloServer({
+  typeDefs: gql\`
+    type Query {
+      collections: [Collection]
+    }
+    type Collection {
+      id: ID!
+      things: [Thing]
+    }
+    type Thing {
+      id: ID!
+      value: String!
+    }\`,
+  resolvers
+});
+`}</Code>
+
+<Note>{`
+simple gql schema
+`}</Note>
+
+---
+
+> resolvers
+
+<Code language="javascript">{`
+new ApolloServer({
+  typeDefs,
+  resolvers: {
+    TypeName: {
+      fieldName: (obj, args, context, info) => result
+    }
+  }
+});
+`}</Code>
+
+<Note>{`
+obj: The object that contains the
+  result returned from the resolver
+  on the parent field,
+args: An object with the arguments
+  passed into the field in the query.
+context: This is an object shared
+  by all resolvers in a particular
+  query
+info: no clue
+`}</Note>
+
+
+---
+
+# Relay
+
+> opinionated gql client
+
+https://github.com/facebook/relay
+
+<Note>{`
+* relay style pagination
+  * might as well
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="RelayModern.ts"
+    lang="js"
+    step={{ range: [1,22] }}
+/>
+
+<Note>{`
+write fragments next to
+components.
+relay client will combine
+all of the fragments you
+want to use into one query
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="relay.graphql"
+    lang="graphql"
+    step={{ range: [14,26] }}
+/>
+
+<Note>{`
+* reference schema implementation
+  * Todo app
+* everything inherets from node
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="relay.graphql"
+    lang="graphql"
+    step={{ range: [28,33] }}
+    />
+
+---
+
+<CodeSurf
+    snippet="relay.graphql"
+    lang="graphql"
+    step={{ range: [35,50] }}
+    />
+
+<Note>{`
+pretty obviously using a
+graph database here
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="relay.graphql"
+    lang="graphql"
+    step={{ range: [51,63] }}
+    />
+
+---
+
+# Schema First
+
+#### because reasoning about your data is complicated
+
+<Note>{`
+CK experience
+- disconnect frontend and backend
+- communicate schema changes quickly
+`}</Note>
+
+---
+
+### Modeling your Database
+
+vs
+
+### Modeling your UI
+
+<Note>{`
+- database
+  seems to be the most popular
+  consider using prisma
+  postgraphile
+- ui
+  what CK is doing
+  ab testing
+  tracking
+`}</Note>
+
+---
+
+## Making your schema a joke
+
+#### Mocking your apollo server
+
+<Note>{`
+* unblocking the frontend
+super easy, really no reason
+not to do it. Even If you're
+only building the FE, consider
+doing it yourself.
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="mock-apollo.ts"
+    step={{ lines: [11] }}
+/>
+
+---
+
+<CodeSurf
+    snippet="apollo-mock-complex.ts"
+    step={{ range: [9, 13] }}
+/>
+
+<Note>{`
+* MockList
+`}</Note>
+
+---
+
+<img src="https://github.com/dotansimha/graphql-code-generator/blob/master/logo.png?raw=true" />
+
+#### because writing types sucks
+
+<Note>{`
+- type generation
+- resolver signature generation
+- react apollo hook generation
+* codegen
+  * you don't need to write the same types again
+  * resolver signatures are built for you
+  * react hook generators
+  * can pass it a schema
+  or intraspect a running
+  gql server
+`}</Note>
+
+---
+
+# Modularizing your schema
+
+---
+
+#### What is schema smushing?
+
+<Horizontal>
+    <Code language="javascript">{`
+typedef: gql\`
+  type User {
+    id: ID!
+    name: String
+  }\`,
+resolvers: {
+  User: {
+    id: getId,
+    name: getName
+  }
+}
+`}</Code>
+    <Code language="javascript">{`
+typedef: gql\`
+  type User {
+    email: String!
+  }\`,
+resolvers: {
+  User: {
+    email: getEmail
+  }
+}
+`}</Code>
+</Horizontal>
+
+---
+
+<Code language="javascript">{`
+typedef: gql\`
+  type User {
+    id: ID!
+    name: String
+    email: String!
+  }\`,
+resolvers: {
+  User: {
+    id: getId,
+    name: getName,
+    email: getEmail
+  }
+}
+`}</Code>
+
+<Note>{`
+* kind of the whole point of gql
+you don't need to build your
+graph all in one place.
+build your graph one module at
+a time, connect them all together
+when you need to spin up a server.
+* modularizing your schema
+  * what is schema smushing?
+  * the CK way
+    * graphql loader
+  * graphql modules
+    * more smushing
+`}</Note>
+
+---
+
+# GQL Loader
+
+#### schema smushing at CK
+
+https://github.com/creditkarma/graphql-loader
+
+<Note>{`
+ * only supports typedefs and resolvers
+ * takes your typedefs,
+   * finds duplicate types
+   * merges fields
+ * Creates executable schema from
+   typedefs + resolvers
+ * doesn't support smushing
+ schemaDirectives
+`}</Note>
+
+---
+
+# GQL Modules
+
+https://github.com/Urigo/graphql-modules
+
+<Note>{`
+* better smushing
+* supports more of the gql spec
+  * schemaDirectives!!
+* providers
+  * extracting business logic out of your resolvers
+  * extracting dataloading from modules
+  * securing data access with scoped providers
+* dependency injection
+* better context management
+`}</Note>
+
+---
+
+<CodeSurf
+  snippet="GQLModulesSetup.ts"
+  lang="typescript"
+  step={{ range: [19,21] }}
+/>
+
+<Note>{`
+* smush all your modules
+together
+* compose your graphql
+server, like a graph
+`}</Note>
+
+---
+
+<CodeSurf
+  snippet="GQLModulesSetup.ts"
+  lang="typescript"
+  step={{ range: [30,42] }}
+/>
+
+<Note>{`
+* create an executable schema
+`}</Note>
+
+---
+
+## Authentication
+
+
+<Note>{`
+* use schema directives
+and context to guard
+entire subtrees
+`}</Note>
+
+---
+
+<Code language="js">{`
+new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req }) => ({
+    user: authorize(req.headers.Authorization)
+  }),
+});
+`}</Code>
+
+<Note>{`
+Some things need access to the request context
+and the context is included for all resolvers
+Now resolvers require things from
+the context, breaking encapsulation
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="AuthModule.ts"
+    lang="typescript"
+    step={{ range: [23,25] }}
+/>
+
+---
+
+
+<CodeSurf
+    snippet="AuthModule.ts"
+    lang="typescript"
+    step={{ range: [29,37] }}
+/>
+
+<Note>{`
+SchemaDirectives allow you to
+wrap resolver functions from
+your schema
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="AuthModule.ts"
+    lang="typescript"
+    step={{ range: [26,28] }}
+/>
+
+<Note>{`
+schemaDirectives
+`}</Note>
+
+---
+
+<CodeSurf
+    snippet="AuthModule.ts"
+    lang="typescript"
+    step={{ range: [15,19] }}
+/>
+
+<Note>{`
+SchemaDirectiveVisitor
+`}</Note>
+
+---
+
+# Optimizing Data Access
+
+https://github.com/graphql/dataloader
+
+<Note>{`
+write batch fetchs,
+instead of fetching
+one at a time
+* optimising data access
+  * data loader
+    * https://github.com/graphql/dataloader
+    * built in data caching,
+    * request batching
+`}</Note>
+
+---
+
+<Code language="typescript">{`
+const resolvers = {
+  Collection: {
+    things: ({id}, _, {injector}) =>
+      injector(CollectionThingLoader).load(id)
+  }
+}
+`}</Code>
+
+<Note>{`
+resolver for the things
+field inside the Collection
+Type
+-
+simple api surface
+to load data, by id
+`}</Note>
+
+---
+
+<CodeSurf
+    language="javascript"
+    snippet="data-loader.ts"
+    step={{ range: [1,17] }}
+/>
+
+<Note>{`
+paginating this type of
+query on a relational database
+is hard.
+* subqueries
+* seperate queries
+maybe you're better
+off not doing it
+`}</Note>
+
+
+---
+
+import federated from './assets/gql-federated.svg'
+
+# Federated GQL
+
+
+<img src={federated} size="500px" />
+
+> Here come the gql microservices
+
+<Note>{`
+* Federated GQL Gateway
+  * gql microservices
+`}</Note>
+
+---
+
+import federatedCk from './assets/gql-federated-ck.svg'
+
+# CK's Federated GQL Gateway
+
+<img src={federatedCk} size="500px" />
+
+<Note>{`
+still schema smooshing
+then the graph is split
+on the gateway level into
+individual services
+`}</Note>
+
+---
+
+# Apollo Federation
+
+https://www.apollographql.com/docs/apollo-server/federation/federation-spec/
+
+<Note>{`
+* Allows splitting types
+across services at a
+field level.
+* No schema smooshing
+`}</Note>
+
+---
+
+> TODO: insert thought provoking gql takeway here
+
+https://github.com/chewnoill/gql-presentation
